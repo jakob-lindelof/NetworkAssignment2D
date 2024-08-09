@@ -34,13 +34,13 @@ public class PlayerMovement : NetworkBehaviour
     {
         if (IsServer)
         {
-            transform.position += (Vector3)moveInput.Value;
+            transform.position += (Vector3)moveInput.Value * Time.deltaTime * playerSpeed;
         }
     }
 
     private void ReadInput()
     {
-        
+        moveInput.Value = moveAction.ReadValue<Vector2>();
     }
 
     [Rpc(SendTo.Server)]
