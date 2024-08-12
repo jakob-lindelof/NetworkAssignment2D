@@ -22,6 +22,33 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Chat Message 1",
+                    "type": "Button",
+                    "id": "2b900037-4ec0-4338-843d-6ad9fd670cc3",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Chat Message 2",
+                    "type": "Button",
+                    "id": "7ce37f3b-02cc-48bb-b3ea-2b21fbe3e9dd",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Chat Message 3",
+                    "type": "Button",
+                    "id": "dde691c2-35fa-4569-afad-9043d62a3ffc",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -88,6 +115,39 @@
                     "processors": "",
                     "groups": "",
                     "action": "Shoot",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "701be989-6f7e-4470-b31b-6f339be3a69b",
+                    "path": "<Keyboard>/1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Chat Message 1",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a5296a6b-3c3a-44dc-9f50-0cf4687ddebf",
+                    "path": "<Keyboard>/2",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Chat Message 2",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7d08b05d-71ef-404f-8b9d-e148b1afd2cb",
+                    "path": "<Keyboard>/3",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Chat Message 3",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

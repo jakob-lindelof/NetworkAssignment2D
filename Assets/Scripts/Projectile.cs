@@ -4,16 +4,12 @@ using UnityEngine;
 public class Projectile : NetworkBehaviour
 {
     private NetworkVariable<Vector2> projectilePosition = new();
+    public NetworkVariable<Vector2> velocity = new();
 
-    public Vector2 velocity;
+    //public Vector2 velocity;
 
     [SerializeField] private float projectileSpeed = 5f;
     [SerializeField] private float destroyTimer = 1f;
-
-    private void Start()
-    {
-        DestroyProjectileRPC();
-    }
 
     private void FixedUpdate()
     {
@@ -21,25 +17,41 @@ public class Projectile : NetworkBehaviour
         {
             Move();
             projectilePosition.Value = transform.position;
+            destroyTimer -= Time.fixedDeltaTime;
+            if (destroyTimer <= 0f)
+            {
+                DestroyProjectileRPC();
+            }
         }
     }
 
     private void Move()
     {
-        //projectilePosition.Value = Vector2.up;
-        transform.position += (Vector3)velocity * Time.deltaTime * projectileSpeed;
+        velocity.Value.Normalize();
+        transform.position += (Vector3)velocity.Value * (Time.deltaTime * projectileSpeed);
     }
 
     [Rpc(SendTo.Server)]
     private void DestroyProjectileRPC()
     {
-        Destroy(this, destroyTimer);
+        Destroy(this);
+        NetworkObject obj = this.GetComponent<NetworkObject>();
+        obj.Despawn();
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (!IsServer)
-        {  return; }
-        Destroy(this);
+        CollisionRPC();
+    }
+
+    [Rpc(SendTo.Server)]
+    private void CollisionRPC()
+    {
+        Debug.Log("Hit");
+        if (IsServer)
+        {
+            this.NetworkObject.Despawn();
+            Destroy(this);
+        }
     }
 }

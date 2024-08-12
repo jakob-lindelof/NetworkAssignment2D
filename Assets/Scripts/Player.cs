@@ -1,12 +1,19 @@
 using Unity.Netcode;
 using UnityEngine.InputSystem;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.Rendering.Universal;
 
-public class PlayerMovement : NetworkBehaviour
+public class Player : NetworkBehaviour
 {
-    PlayerInput playerInput;
-    InputAction moveAction;
-    InputAction shootAction;
+    private PlayerInput playerInput;
+    private InputAction moveAction;
+    private InputAction shootAction;
+    private InputAction chatMessage1;
+    private InputAction chatMessage2;
+    private InputAction chatMessage3;
+
+    private UnityAction<int> SendChatEvent;
 
     private NetworkVariable<Vector2> moveInput = new();
 
@@ -29,6 +36,12 @@ public class PlayerMovement : NetworkBehaviour
         playerInput = GetComponent<PlayerInput>();
         moveAction = playerInput.actions.FindAction("Move");
         shootAction = playerInput.actions.FindAction("Shoot");
+        chatMessage1 = playerInput.actions.FindAction("Chat Message 1");
+        chatMessage2 = playerInput.actions.FindAction("Chat Message 2");
+        chatMessage3 = playerInput.actions.FindAction("Chat Message 3");
+        GameManager gm = GameObject.Find("GameManager").GetComponent<GameManager>();
+        gm.playerList.Add(gameObject);
+        Debug.Log(gm.playerList.Count);
     }
 
     void Update()
@@ -51,8 +64,8 @@ public class PlayerMovement : NetworkBehaviour
         {
             moveInput.Value.Normalize();
             mousePositionNormalized.Value.Normalize();
-            transform.position += (Vector3)moveInput.Value * Time.deltaTime * playerSpeed;
-            transform.up = mousePosWorldNorm;
+            transform.position += (Vector3)moveInput.Value * (Time.deltaTime * playerSpeed);
+            transform.up = mousePositionNormalized.Value;
         }
     }
 
@@ -62,6 +75,24 @@ public class PlayerMovement : NetworkBehaviour
         if (shootAction.WasPressedThisFrame())
         {
             SpawnRPC();
+        }
+
+        if (chatMessage1.WasPressedThisFrame())
+        {
+            SendChat(0);
+            Debug.Log("1");
+        }
+
+        if (chatMessage2.WasPressedThisFrame())
+        {
+            SendChat(1);
+            Debug.Log("2");
+        }
+
+        if (chatMessage3.WasPressedThisFrame())
+        {
+            SendChat(2);
+            Debug.Log("3");
         }
     }
     
@@ -80,9 +111,23 @@ public class PlayerMovement : NetworkBehaviour
     {
         NetworkObject obj = Instantiate(gameObjectoToSpawn, bulletMuzzle.transform.position, Quaternion.identity).GetComponent<NetworkObject>();
         Projectile projectile = obj.GetComponent<Projectile>();
-        projectile.velocity = mousePosWorldNorm;
+        projectile.velocity.Value = mousePosWorldNorm;
         projectile.transform.rotation = transform.rotation;
         obj.Spawn();
     }
-    
+
+    private void SendChat(int index)
+    {
+        GameManager gm = GameObject.Find("GameManager").GetComponent<GameManager>();
+        int playerIndex = 3;
+        for (int i = 0; i < gm.playerList.Count; i++)
+        {
+            if (gm.playerList[i] = this.gameObject)
+            {
+                playerIndex = i;
+            }
+        }
+        gm.SubmitMessageRPC(index, playerIndex);
+    }
+
 }
