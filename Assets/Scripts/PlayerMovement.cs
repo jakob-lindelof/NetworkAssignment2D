@@ -7,8 +7,10 @@ public class PlayerMovement : NetworkBehaviour
     PlayerInput playerInput;
     InputAction moveAction;
     InputAction shootAction;
-    
-    private NetworkVariable<Vector2> moveInput = new(writePerm: NetworkVariableWritePermission.Owner);
+
+    private NetworkVariable<Vector2> moveInput = new();
+
+    private NetworkVariable<Vector2> mousePositionNormalized = new();
 
     private Vector2 mousePos;
     
@@ -33,11 +35,11 @@ public class PlayerMovement : NetworkBehaviour
     {
         if (IsLocalPlayer)
         {
-            ReadInput();
             mousePos = Input.mousePosition;
             mousePosWorld = Camera.main.ScreenToWorldPoint(mousePos);
             mousePosWorldNorm = mousePosWorld - (Vector2)transform.position;
             mousePosWorldNorm.Normalize();
+            ReadInput(moveAction.ReadValue<Vector2>(), mousePosWorldNorm);
             
             Debug.DrawLine(transform.position, mousePosWorld, Color.blue);
         }
@@ -47,14 +49,16 @@ public class PlayerMovement : NetworkBehaviour
     {
         if (IsServer)
         {
+            moveInput.Value.Normalize();
+            mousePositionNormalized.Value.Normalize();
             transform.position += (Vector3)moveInput.Value * Time.deltaTime * playerSpeed;
             transform.up = mousePosWorldNorm;
         }
     }
 
-    private void ReadInput()
+    private void ReadInput(Vector2 input, Vector2 mouseDirection)
     {
-        moveInput.Value = moveAction.ReadValue<Vector2>();
+        MoveRPC(input, mouseDirection);
         if (shootAction.WasPressedThisFrame())
         {
             SpawnRPC();
@@ -63,9 +67,10 @@ public class PlayerMovement : NetworkBehaviour
     
     
     [Rpc(SendTo.Server)]
-    private void MoveRPC(Vector2 data)
+    private void MoveRPC(Vector2 movement, Vector2 mouseDirection)
     {
-        moveInput.Value = data;
+        moveInput.Value = movement;
+        mousePositionNormalized.Value = mouseDirection;
     }
     
 
@@ -74,9 +79,10 @@ public class PlayerMovement : NetworkBehaviour
     private void SpawnRPC()
     {
         NetworkObject obj = Instantiate(gameObjectoToSpawn, bulletMuzzle.transform.position, Quaternion.identity).GetComponent<NetworkObject>();
-        
+        Projectile projectile = obj.GetComponent<Projectile>();
+        projectile.velocity = mousePosWorldNorm;
+        projectile.transform.rotation = transform.rotation;
         obj.Spawn();
-
     }
     
 }

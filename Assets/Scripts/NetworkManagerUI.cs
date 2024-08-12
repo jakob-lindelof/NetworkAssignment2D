@@ -33,8 +33,5 @@ public class NetworkManagerUI : MonoBehaviour
         {
             Application.Quit();
         }
-        
-
-        
     }
 }
