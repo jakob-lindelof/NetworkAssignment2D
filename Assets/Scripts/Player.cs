@@ -2,7 +2,6 @@ using Unity.Netcode;
 using UnityEngine.InputSystem;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Rendering.Universal;
 
 public class Player : NetworkBehaviour
 {
@@ -41,7 +40,9 @@ public class Player : NetworkBehaviour
         chatMessage3 = playerInput.actions.FindAction("Chat Message 3");
         GameManager gm = GameObject.Find("GameManager").GetComponent<GameManager>();
         gm.playerList.Add(gameObject);
+        gm.playerMap.Add(OwnerClientId, NetworkObject);
         Debug.Log(gm.playerList.Count);
+        Debug.Log("ownerclientId: " + OwnerClientId);
     }
 
     void Update()
@@ -118,16 +119,19 @@ public class Player : NetworkBehaviour
 
     private void SendChat(int index)
     {
+        
         GameManager gm = GameObject.Find("GameManager").GetComponent<GameManager>();
-        int playerIndex = 3;
-        for (int i = 0; i < gm.playerList.Count; i++)
+        /*
+        int playerIndex = -1;
+        for (int i = 0; i < gm.playerMap.Count; i++)
         {
-            if (gm.playerList[i] = this.gameObject)
+            if (gm.playerMap[i] = NetworkObject)
             {
                 playerIndex = i;
             }
         }
-        gm.SubmitMessageRPC(index, playerIndex);
+        */
+        gm.SubmitMessageRPC(index, OwnerClientId);
     }
 
 }

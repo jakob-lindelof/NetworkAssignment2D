@@ -6,7 +6,6 @@ public class Projectile : NetworkBehaviour
     private NetworkVariable<Vector2> projectilePosition = new();
     public NetworkVariable<Vector2> velocity = new();
 
-    //public Vector2 velocity;
 
     [SerializeField] private float projectileSpeed = 5f;
     [SerializeField] private float destroyTimer = 1f;
