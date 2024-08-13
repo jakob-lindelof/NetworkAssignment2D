@@ -21,6 +21,10 @@ public class GameManager : NetworkBehaviour
     private NetworkVariable<Vector2> messagePosPlayer1 = new();
     private NetworkVariable<Vector2> messagePosPlayer2 = new();
 
+    private NetworkVariable<int> player1Health = new();
+    private NetworkVariable<int> player2Health = new();
+
+
     private bool messageOnScreen;
 
     [SerializeField] private Canvas gameUI;
@@ -33,6 +37,7 @@ public class GameManager : NetworkBehaviour
     {
         playerList = new List<GameObject>();
         playerMap = new Dictionary<ulong, NetworkObject>();
+        player1Health.OnValueChanged += UpdatePlayerHealth;
     }
     private void Start()
     {
@@ -104,5 +109,11 @@ public class GameManager : NetworkBehaviour
             default:
                 break;
         }
+    }
+
+    [Rpc(SendTo.Server)]
+    private void UpdatePlayerHealth(int health)
+    {
+
     }
 }

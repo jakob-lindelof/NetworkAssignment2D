@@ -46,11 +46,11 @@ public class Projectile : NetworkBehaviour
     [Rpc(SendTo.Server)]
     private void CollisionRPC()
     {
-        Debug.Log("Hit");
         if (IsServer)
         {
             this.NetworkObject.Despawn();
             Destroy(this);
+            Debug.Log("Hit");
         }
     }
 }

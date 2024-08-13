@@ -135,4 +135,41 @@ public class Player : NetworkBehaviour
         gm.SubmitMessageRPC(index, OwnerClientId);
     }
 
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        TriggerCheckTag(collision.gameObject);
+    }
+
+    private void TriggerCheckTag(GameObject go)
+    {
+        if (!IsServer)
+        { return; }
+        if (go.CompareTag("Projectile"))
+        {
+            CollisionRPC(OwnerClientId);
+            go.GetComponent<NetworkObject>().Despawn();
+            Destroy(go);
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    private void CollisionRPC(ulong clientId)
+    {
+        if (IsServer)
+        {
+            switch (clientId)
+            {
+                case 0:
+
+                    break;
+
+                case 1: 
+
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
 }
