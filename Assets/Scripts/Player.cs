@@ -72,31 +72,32 @@ public class Player : NetworkBehaviour
 
     private void ReadInput(Vector2 input, Vector2 mouseDirection)
     {
+        //Movement
         MoveRPC(input, mouseDirection);
+
+        //Shooting
         if (shootAction.WasPressedThisFrame())
         {
             SpawnRPC();
         }
 
+        //Chat messages
         if (chatMessage1.WasPressedThisFrame())
         {
             SendChat(0);
             Debug.Log("1");
         }
-
         if (chatMessage2.WasPressedThisFrame())
         {
             SendChat(1);
             Debug.Log("2");
         }
-
         if (chatMessage3.WasPressedThisFrame())
         {
             SendChat(2);
             Debug.Log("3");
         }
     }
-    
     
     [Rpc(SendTo.Server)]
     private void MoveRPC(Vector2 movement, Vector2 mouseDirection)
