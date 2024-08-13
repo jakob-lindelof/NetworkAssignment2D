@@ -112,7 +112,7 @@ public class GameManager : NetworkBehaviour
     }
 
     [Rpc(SendTo.Server)]
-    private void UpdatePlayerHealth(int health)
+    private void UpdatePlayerHealth(int previosuHealth, int newHealth)
     {
 
     }
