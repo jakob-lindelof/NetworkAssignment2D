@@ -24,6 +24,8 @@ public class Player : NetworkBehaviour
 
     private Vector2 mousePosWorldNorm;
 
+    private GameManager gm;
+
     [SerializeField] private GameObject bulletMuzzle;
 
     [SerializeField] private GameObject gameObjectoToSpawn;
@@ -38,10 +40,8 @@ public class Player : NetworkBehaviour
         chatMessage1 = playerInput.actions.FindAction("Chat Message 1");
         chatMessage2 = playerInput.actions.FindAction("Chat Message 2");
         chatMessage3 = playerInput.actions.FindAction("Chat Message 3");
-        GameManager gm = GameObject.Find("GameManager").GetComponent<GameManager>();
-        gm.playerList.Add(gameObject);
+        gm = GameObject.Find("GameManager").GetComponent<GameManager>();
         gm.playerMap.Add(OwnerClientId, NetworkObject);
-        Debug.Log(gm.playerList.Count);
         Debug.Log("ownerclientId: " + OwnerClientId);
     }
 
@@ -63,6 +63,8 @@ public class Player : NetworkBehaviour
     {
         if (IsServer)
         {
+            if (gm.winnerDecided.Value)
+            {   return;  }
             moveInput.Value.Normalize();
             mousePositionNormalized.Value.Normalize();
             transform.position += (Vector3)moveInput.Value * (Time.deltaTime * playerSpeed);
@@ -111,10 +113,13 @@ public class Player : NetworkBehaviour
     [Rpc(SendTo.Server)]
     private void SpawnRPC()
     {
+        if (gm.winnerDecided.Value)
+        {   return;  }
         NetworkObject obj = Instantiate(gameObjectoToSpawn, bulletMuzzle.transform.position, Quaternion.identity).GetComponent<NetworkObject>();
         Projectile projectile = obj.GetComponent<Projectile>();
-        projectile.velocity.Value = mousePosWorldNorm;
+        projectile.velocity.Value = mousePositionNormalized.Value;
         projectile.transform.rotation = transform.rotation;
+        projectile.spawnedFromPlayerId.Value = OwnerClientId;
         obj.Spawn();
     }
 
@@ -122,54 +127,25 @@ public class Player : NetworkBehaviour
     {
         
         GameManager gm = GameObject.Find("GameManager").GetComponent<GameManager>();
-        /*
-        int playerIndex = -1;
-        for (int i = 0; i < gm.playerMap.Count; i++)
-        {
-            if (gm.playerMap[i] = NetworkObject)
-            {
-                playerIndex = i;
-            }
-        }
-        */
         gm.SubmitMessageRPC(index, OwnerClientId);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        TriggerCheckTag(collision.gameObject);
+        TriggerCheckTag(collision.GetComponent<Projectile>());
     }
 
-    private void TriggerCheckTag(GameObject go)
+    private void TriggerCheckTag(Projectile projectile)
     {
         if (!IsServer)
         { return; }
-        if (go.CompareTag("Projectile"))
+        if (projectile.CompareTag("Projectile") && projectile.spawnedFromPlayerId.Value != OwnerClientId)
         {
-            CollisionRPC(OwnerClientId);
-            go.GetComponent<NetworkObject>().Despawn();
-            Destroy(go);
+            gm.playerHit.Invoke(OwnerClientId);
+            projectile.GetComponent<NetworkObject>().Despawn();
+            Destroy(projectile);
         }
     }
 
-    [Rpc(SendTo.Server)]
-    private void CollisionRPC(ulong clientId)
-    {
-        if (IsServer)
-        {
-            switch (clientId)
-            {
-                case 0:
-
-                    break;
-
-                case 1: 
-
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
 
 }

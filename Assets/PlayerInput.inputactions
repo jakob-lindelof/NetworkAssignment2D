@@ -110,6 +110,17 @@
                 {
                     "name": "",
                     "id": "21eba647-95cf-4d9a-9c2c-5a02f70ed186",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Shoot",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f998df21-7d2d-40ad-a1fd-59eb4b98bf76",
                     "path": "<Keyboard>/space",
                     "interactions": "",
                     "processors": "",

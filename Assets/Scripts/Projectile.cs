@@ -6,9 +6,12 @@ public class Projectile : NetworkBehaviour
     private NetworkVariable<Vector2> projectilePosition = new();
     public NetworkVariable<Vector2> velocity = new();
 
+    public NetworkVariable<ulong> spawnedFromPlayerId;
 
-    [SerializeField] private float projectileSpeed = 5f;
-    [SerializeField] private float destroyTimer = 1f;
+    [SerializeField] NetworkVariable<float> projectileSpeed = new();
+    [SerializeField] NetworkVariable<float> destroyTimer = new();
+    //[SerializeField] private float projectileSpeed = 5f;
+    //[SerializeField] private float destroyTimer = 1f;
 
     private void FixedUpdate()
     {
@@ -16,8 +19,8 @@ public class Projectile : NetworkBehaviour
         {
             Move();
             projectilePosition.Value = transform.position;
-            destroyTimer -= Time.fixedDeltaTime;
-            if (destroyTimer <= 0f)
+            destroyTimer.Value -= Time.fixedDeltaTime;
+            if (destroyTimer.Value <= 0f)
             {
                 DestroyProjectileRPC();
             }
@@ -27,7 +30,7 @@ public class Projectile : NetworkBehaviour
     private void Move()
     {
         velocity.Value.Normalize();
-        transform.position += (Vector3)velocity.Value * (Time.deltaTime * projectileSpeed);
+        transform.position += (Vector3)velocity.Value * (Time.deltaTime * projectileSpeed.Value);
     }
 
     [Rpc(SendTo.Server)]
@@ -37,20 +40,5 @@ public class Projectile : NetworkBehaviour
         NetworkObject obj = this.GetComponent<NetworkObject>();
         obj.Despawn();
     }
-
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        CollisionRPC();
-    }
-
-    [Rpc(SendTo.Server)]
-    private void CollisionRPC()
-    {
-        if (IsServer)
-        {
-            this.NetworkObject.Despawn();
-            Destroy(this);
-            Debug.Log("Hit");
-        }
-    }
+    
 }
