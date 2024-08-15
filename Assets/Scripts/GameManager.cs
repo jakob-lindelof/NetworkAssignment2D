@@ -118,9 +118,6 @@ public class GameManager : NetworkBehaviour
                 player2Message.text = presetChatMessages[messageIndex].ToString();
                 onScreenMessagePlayer2.Value = true;
                 break;
-
-            default:
-                break;
         }
     }
 
@@ -172,8 +169,6 @@ public class GameManager : NetworkBehaviour
                 case 1: 
                     Debug.Log("Collided with player 2");
                     player2Health.Value -= 1;
-                    break;
-                default:
                     break;
             }
         }

@@ -18,6 +18,12 @@ public class Player : NetworkBehaviour
 
     private NetworkVariable<Vector2> mousePositionNormalized = new();
 
+    private NetworkVariable<bool> canFire = new();
+
+    private NetworkVariable<float> fireRate = new(1f);
+
+    private NetworkVariable<float> fireTimer = new(1f);
+
     private Vector2 mousePos;
     
     private Vector2 mousePosWorld;
@@ -65,6 +71,16 @@ public class Player : NetworkBehaviour
         {
             if (gm.winnerDecided.Value)
             {   return;  }
+
+            if (!canFire.Value)
+            {
+                fireTimer.Value -= Time.fixedDeltaTime;
+                if (fireTimer.Value <= 0)
+                {
+                    canFire.Value = true;
+                }
+            }
+            
             moveInput.Value.Normalize();
             mousePositionNormalized.Value.Normalize();
             transform.position += (Vector3)moveInput.Value * (Time.deltaTime * playerSpeed);
@@ -115,17 +131,23 @@ public class Player : NetworkBehaviour
     {
         if (gm.winnerDecided.Value)
         {   return;  }
-        NetworkObject obj = Instantiate(gameObjectoToSpawn, bulletMuzzle.transform.position, Quaternion.identity).GetComponent<NetworkObject>();
-        Projectile projectile = obj.GetComponent<Projectile>();
-        projectile.velocity.Value = mousePositionNormalized.Value;
-        projectile.transform.rotation = transform.rotation;
-        projectile.spawnedFromPlayerId.Value = OwnerClientId;
-        obj.Spawn();
+
+        if (canFire.Value)
+        {
+            NetworkObject obj = Instantiate(gameObjectoToSpawn, bulletMuzzle.transform.position, Quaternion.identity)
+                .GetComponent<NetworkObject>();
+            Projectile projectile = obj.GetComponent<Projectile>();
+            projectile.velocity.Value = mousePositionNormalized.Value;
+            projectile.transform.rotation = transform.rotation;
+            projectile.spawnedFromPlayerId.Value = OwnerClientId;
+            obj.Spawn();
+            canFire.Value = false;
+            fireTimer.Value = fireRate.Value;
+        }
     }
 
     private void SendChat(int index)
     {
-        
         GameManager gm = GameObject.Find("GameManager").GetComponent<GameManager>();
         gm.SubmitMessageRPC(index, OwnerClientId);
     }
