@@ -16,16 +16,6 @@ public class NetworkManagerUI : MonoBehaviour
             networkManager.StartClient();
         }
 
-        if (GUILayout.Button("Disconnect"))
-        {
-            networkManager.DisconnectClient(networkManager.LocalClientId);
-        }
-
-        if (GUILayout.Button("Shutdown"))
-        {
-            networkManager.Shutdown();
-        }
-
         if (GUILayout.Button("Quit"))
         {
             Application.Quit();
